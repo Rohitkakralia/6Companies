@@ -1,0 +1,83 @@
+661. Image Smoother
+class Solution {
+    public int[][] imageSmoother(int[][] img) {
+        int row = img.length;
+        int col = img[0].length;
+        int[][] ans = new int[row][col];
+
+        for(int i=0; i<row; i++){
+            for(int j=0; j<col; j++){
+                ans[i][j] = calAverage(img, i, j, row, col);
+            }
+        }
+        return ans;
+    }
+    public int calAverage(int[][] img, int r, int c, int row, int col){
+        int total = 0;
+        int cnt = 0;
+
+        int top = Math.max(0, r-1);
+        int bottom = Math.min(row, r+2);
+        int left = Math.max(0, c-1);
+        int right = Math.min(col, c+2);
+
+        for(int i=top; i<bottom; i++){
+            for(int j=left; j<right; j++){
+                total += img[i][j];
+                cnt++;
+            }
+        }
+
+        return total / cnt;
+    }
+}
+----------------------------------------------------------------------------------------------------------------------------------------
+462. Minimum Moves to Equal Array Elements II
+class Solution {
+    public int minMoves2(int[] nums) {
+        int n = nums.length;
+        Arrays.sort(nums);
+
+        int mid = (n-1)/2;
+        int element = nums[mid];
+        int ans = 0;
+        
+        for(int num : nums){
+            ans += Math.abs(num - element);
+        }
+        return ans;
+    }
+}
+---------------------------------------------------------------------------------------------------------------------------------------
+497. Random Point in Non-overlapping Rectangles
+class Solution {
+    int[][] rects;
+    TreeMap<Integer, Integer> areaMap = new TreeMap<>();
+    Random random;
+    int totalArea;
+    public Solution(int[][] rects) {
+        this.rects = rects;
+        this.random = new Random();
+        this.totalArea  = 0;
+
+        for(int i=0; i<rects.length; i++){
+            int[] rect = rects[i];
+            int width = rect[2] - rect[0] + 1;
+            int height = rect[3] - rect[1] + 1;
+            totalArea += width * height;
+            areaMap.put(totalArea, i);
+        }
+    }
+    
+    public int[] pick() {
+        int target = random.nextInt(totalArea);
+        int rectIndex = areaMap.higherEntry(target).getValue();
+
+        // Step 2: Pick a random point within the chosen rectangle
+        int[] rect = rects[rectIndex];
+        int x = rect[0] + random.nextInt(rect[2] - rect[0] + 1);
+        int y = rect[1] + random.nextInt(rect[3] - rect[1] + 1);
+
+        return new int[] {x, y};
+    }
+}
