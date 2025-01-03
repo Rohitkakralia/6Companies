@@ -1,0 +1,98 @@
+299. Bulls and Cows
+class Solution {
+    public String getHint(String secret, String guess) {
+        int n = guess.length();;
+        Map<Character, Integer> map = new HashMap<>();
+        for(int i=0; i<n; i++){
+            map.put(secret.charAt(i), map.getOrDefault(secret.charAt(i), 0)+1);
+        }
+
+        int i=0;
+        int cow = 0;
+        int bull = 0;
+        while(i<n){
+            char chOfSecret = secret.charAt(i);
+            char chOfGuess = guess.charAt(i);
+            if(chOfSecret == chOfGuess){
+                bull++;
+                if(map.get(chOfSecret) <= 0){
+                    cow--;
+                }
+                map.put(chOfSecret, map.get(chOfSecret) - 1);
+            }else{
+                if(!map.containsKey(chOfGuess) || map.get(chOfGuess) <= 0){
+                    i++;
+                    continue;
+                }else{
+                    cow++;
+                    map.put(chOfGuess, map.get(chOfGuess) - 1);
+                }
+            }
+            i++;
+        }
+
+        StringBuilder ans = new StringBuilder();
+        ans.append(bull);
+        ans.append('A');
+        ans.append(cow);
+        ans.append('B');
+        return ans.toString();
+    }
+}
+----------------------------------------------------------------------------------------------------------------------------------
+1248. Count Number of Nice Subarrays
+class Solution {
+    public int numberOfSubarrays(int[] nums, int k) {
+        return atMostK(nums, k) - atMostK(nums, k - 1);
+    }
+    
+    // Helper function to count subarrays with at most `k` odd numbers
+    private int atMostK(int[] nums, int k) {
+        int left = 0, count = 0, result = 0;
+        
+        for (int right = 0; right < nums.length; right++) {
+            // Increment count if current element is odd
+            if (nums[right] % 2 != 0) {
+                count++;
+            }
+            
+            // Shrink window from the left if count of odd numbers is greater than k
+            while (count > k) {
+                if (nums[left] % 2 != 0) {
+                    count--;
+                }
+                left++;
+            }
+            
+            // All subarrays ending at `right` with at most `k` odd numbers
+            result += right - left + 1;
+        }
+        
+        return result;
+    }
+}
+----------------------------------------------------------------------------------------------------------------------------------------------------
+187. Repeated DNA Sequences
+class Solution {
+    public List<String> findRepeatedDnaSequences(String s) {
+        int n = s.length();
+        if(n <= 10) new ArrayList<>();
+        List<String> ans = new ArrayList<>();
+        Map<String, Integer> map = new HashMap<>();
+        int i=0, j=9;
+        while(j<n){
+            String subString = s.substring(i, j+1);
+            if(!map.containsKey(subString)){
+                map.put(subString, 1);
+            }else{
+                if(map.get(subString) == 1){
+                    ans.add(subString);
+                }
+                map.put(subString, map.get(subString) + 1);
+            }
+            j++;
+            i++;
+        }
+        return ans;
+    }
+}
