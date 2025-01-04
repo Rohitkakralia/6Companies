@@ -1,0 +1,137 @@
+1334. Find the City With the Smallest Number of Neighbors at a Threshold Distance
+class Solution {
+    public int findTheCity(int n, int[][] edges, int distanceThreshold) {
+        // Create adjacency list
+        Map<Integer, List<int[]>> graph = new HashMap<>();
+        for (int[] edge : edges) {
+            int u = edge[0];
+            int v = edge[1];
+            int w = edge[2];
+            graph.computeIfAbsent(u, k -> new ArrayList<>()).add(new int[]{v, w});
+            graph.computeIfAbsent(v, k -> new ArrayList<>()).add(new int[]{u, w});
+        }
+        
+        // Call helper method to find the result
+        return helper(n, graph, distanceThreshold);
+    }
+
+    private int helper(int n, Map<Integer, List<int[]>> graph, int th) {
+        int ans = -1;
+        int minCount = Integer.MAX_VALUE;
+
+        for (int i = 0; i < n; i++) {
+            // Perform Dijkstra's algorithm for each city
+            int count = dijkstra(i, graph, th, n);
+
+            // Update the result
+            if (count < minCount) {
+                minCount = count;
+                ans = i;
+            } else if (count == minCount) {
+                ans = Math.max(ans, i); // Prefer the city with the largest index
+            }
+        }
+
+        return ans;
+    }
+
+    private int dijkstra(int start, Map<Integer, List<int[]>> graph, int th, int n) {
+        PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[1])); // {node, distance}
+        pq.offer(new int[]{start, 0});
+        int[] distances = new int[n];
+        Arrays.fill(distances, Integer.MAX_VALUE);
+        distances[start] = 0;
+        int count = 0;
+
+        while (!pq.isEmpty()) {
+            int[] current = pq.poll();
+            int node = current[0];
+            int dist = current[1];
+
+            // Skip if this path is already longer than the distanceThreshold
+            if (dist > th) continue;
+
+            for (int[] neighbor : graph.getOrDefault(node, new ArrayList<>())) {
+                int nextNode = neighbor[0];
+                int weight = neighbor[1];
+                if (dist + weight < distances[nextNode]) {
+                    distances[nextNode] = dist + weight;
+                    pq.offer(new int[]{nextNode, distances[nextNode]});
+                }
+            }
+        }
+
+        // Count reachable cities within the distance threshold
+        for (int d : distances) {
+            if (d <= th) count++;
+        }
+        return count - 1; // Exclude the starting city
+    }
+}
+-------------------------------------------------------------------------------------------------------------------------------------
+2970. Count the Number of Incremovable Subarrays I
+class Solution {
+    public int incremovableSubarrayCount(int[] nums) {
+        int n = nums.length;
+        int ans = 0;
+        for(int i=0; i<n; i++){
+            for(int j=i; j<n; j++){
+                if(helper(nums, i, j)){
+                    ans++;
+                }
+            }
+        }
+        return ans;
+    }
+    public boolean helper(int[] nums, int left, int right){
+        int n = nums.length;
+        for(int i=0; i<left-1; i++){
+            if(nums[i] >= nums[i+1]){
+                return false;
+            }
+        }
+
+        if(left>0 && right<n-1 && nums[left-1] >= nums[right+1]){
+            return false;
+        }
+
+        for(int i=right+1; i<n-1; i++){
+            if(nums[i] >= nums[i+1]){
+                return false;
+            }
+        }
+        return true;
+    }
+}
+--------------------------------------------------------------------------------------------------------------------------
+2002. Maximum Product of the Length of Two Palindromic Subsequences
+class Solution {
+    int res = 0;
+    public int maxProduct(String s) {
+        char[] strArr = s.toCharArray();
+        dfs(strArr, 0, "", "");
+        return res;
+    }
+    public void dfs(char[] s, int i, String s1, String s2){
+        if(i >= s.length){
+            if(palidrome(s1) && palidrome(s2)){
+                res = Math.max((s1.length() * s2.length()), res);
+            }
+            return;
+        }
+
+        dfs(s, i+1, s1 + s[i], s2);
+        dfs(s, i+1, s1, s2 + s[i]);
+        dfs(s, i+1, s1, s2);
+    }
+    public boolean palidrome(String s){
+        int j = s.length()-1;
+        for(int i=0; i<j; i++){
+            if(s.charAt(i) != s.charAt(j)){
+                return false;
+            }
+            j--;
+        }
+        return true;
+    }
+}
