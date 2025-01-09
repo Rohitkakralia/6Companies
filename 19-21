@@ -1,0 +1,44 @@
+Brackets in Matrix Chain Multiplication
+PENDING
+
+--------------------------------------------------------------------------------------------------------------------------
+Phone directory
+PENDING
+
+
+--------------------------------------------------------------------------------------------------------------------------
+K Sized Subarray Maximum
+class Solution {
+    // Function to find maximum of each subarray of size k.
+    public ArrayList<Integer> max_of_subarrays(int arr[], int k) {
+        // Your code here
+        int n = arr.length;
+        int i=0, j=0;
+        int maxi = arr[0];
+        ArrayList<Integer> ans = new ArrayList<>();
+        if(k == 1){
+            for(int num : arr){
+                ans.add(num);
+            }
+            return ans;
+        }
+        while(i<n && j<n){
+            maxi = Math.max(maxi, arr[j]);
+            if(j-i+1 == k){
+                ans.add(maxi);
+                if(arr[i] != maxi){
+                    i++;
+                }else{
+                    i++;
+                    j = i;
+                    if(j<n){
+                        maxi = arr[j];
+                    }
+                    
+                }
+            }
+            j++;
+        }
+        return ans;
+    }
+}
