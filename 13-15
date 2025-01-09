@@ -1,0 +1,166 @@
+324. Wiggle Sort II
+class Solution {
+    public void wiggleSort(int[] nums) {
+        Arrays.sort(nums);
+        int n = nums.length;
+        int left = (n-1)/2;
+        int right = n-1;
+        int res[] = new int[n];
+        int i=0;
+
+        while(left>=0){
+            res[i++] = nums[left--];
+            if(i >= n) break;
+            res[i++] = nums[right--];
+        }
+        for(int j=0; j<n; j++){
+            nums[j] = res[j];
+        }
+    }
+}
+----------------------------------------------------------------------------------------------------------------------
+638. Shopping Offers
+class Solution {
+    public int shoppingOffers(List<Integer> price, List<List<Integer>> special, List<Integer> needs) {
+        Map<List<Integer>, Integer> memo = new HashMap<>();
+        return shopping(price, special, needs, memo);
+    }
+
+    private int shopping(List<Integer> price, List<List<Integer>> special, List<Integer> needs, Map<List<Integer>, Integer> memo) {
+        if (memo.containsKey(needs)) {
+            return memo.get(needs);
+        }
+
+        // Calculate the direct cost without any special offers
+        int res = sum(price, needs);
+
+        // Try each special offer
+        for (List<Integer> s : special) {
+            List<Integer> clone = new ArrayList<>(needs);
+            boolean validOffer = true;
+            for (int j = 0; j < needs.size(); j++) {
+                int diff = clone.get(j) - s.get(j);
+                if (diff < 0) { // Offer exceeds current needs
+                    validOffer = false;
+                    break;
+                }
+                clone.set(j, diff);
+            }
+            if (validOffer) {
+                res = Math.min(res, s.get(needs.size()) + shopping(price, special, clone, memo));
+            }
+        }
+
+        memo.put(needs, res);
+        return res;
+    }
+
+    private int sum(List<Integer> price, List<Integer> needs) {
+        int total = 0;
+        for (int i = 0; i < price.size(); i++) {
+            total += price.get(i) * needs.get(i);
+        }
+        return total;
+    }
+}
+-----------------------------------------------------------------------------------------------------------------------------------
+2976. Minimum Cost to Convert String I
+import java.util.*;
+
+class Solution {
+    public long minimumCost(String source, String target, char[] original, char[] changed, int[] cost) {
+        // Step 1: Build the graph
+        Map<Character, Map<Character, Integer>> graph = new HashMap<>();
+        for (int i = 0; i < original.length; i++) {
+            char u = original[i];
+            char v = changed[i];
+            int w = cost[i];
+            graph.computeIfAbsent(u, k -> new HashMap<>()).put(v, Math.min(graph.getOrDefault(u, new HashMap<>()).getOrDefault(v, Integer.MAX_VALUE), w));
+        }
+
+        // Step 2: Precompute shortest paths using Floyd-Warshall
+        Map<Character, Map<Character, Integer>> dist = floydWarshall(graph);
+
+        // Step 3: Calculate the total cost
+        long sum = 0;
+        for (int i = 0; i < source.length(); i++) {
+            char from = source.charAt(i);
+            char to = target.charAt(i);
+
+            if (from != to) {
+                int costToTransform = dist.getOrDefault(from, new HashMap<>()).getOrDefault(to, Integer.MAX_VALUE);
+                if (costToTransform == Integer.MAX_VALUE) {
+                    return -1; // Transformation not possible
+                }
+                sum += costToTransform;
+            }
+        }
+        return sum;
+    }
+
+    private Map<Character, Map<Character, Integer>> floydWarshall(Map<Character, Map<Character, Integer>> graph) {
+        Set<Character> nodes = new HashSet<>(graph.keySet());
+        for (Map<Character, Integer> neighbors : graph.values()) {
+            nodes.addAll(neighbors.keySet());
+        }
+
+        // Initialize distances
+        Map<Character, Map<Character, Integer>> dist = new HashMap<>();
+        for (char u : nodes) {
+            dist.put(u, new HashMap<>());
+            for (char v : nodes) {
+                if (u == v) {
+                    dist.get(u).put(v, 0);
+                } else {
+                    dist.get(u).put(v, graph.getOrDefault(u, new HashMap<>()).getOrDefault(v, Integer.MAX_VALUE));
+                }
+            }
+        }
+
+        // Floyd-Warshall algorithm
+        for (char k : nodes) {
+            for (char i : nodes) {
+                for (char j : nodes) {
+                    if (dist.get(i).get(k) != Integer.MAX_VALUE && dist.get(k).get(j) != Integer.MAX_VALUE) {
+                        dist.get(i).put(j, Math.min(dist.get(i).get(j), dist.get(i).get(k) + dist.get(k).get(j)));
+                    }
+                }
+            }
+        }
+        return dist;
+    }
+}
+
+// private int bfs(char start, char target, Map<Character, Map<Character, Integer>> graph) {
+//         // BFS setup
+//         Queue<int[]> queue = new LinkedList<>(); // [currentNode, currentCost]
+//         Set<Character> visited = new HashSet<>();
+//         queue.add(new int[] { start, 0 });
+//         visited.add(start);
+
+//         while (!queue.isEmpty()) {
+//             int[] current = queue.poll();
+//             char node = (char) current[0];
+//             int cost = current[1];
+
+//             // If we reach the target, return the cost
+//             if (node == target) {
+//                 return cost;
+//             }
+
+//             // Traverse neighbors
+//             if (graph.containsKey(node)) {
+//                 for (Map.Entry<Character, Integer> neighbor : graph.get(node).entrySet()) {
+//                     char nextNode = neighbor.getKey();
+//                     int nextCost = cost + neighbor.getValue();
+
+//                     if (!visited.contains(nextNode)) {
+//                         visited.add(nextNode);
+//                         queue.add(new int[] { nextNode, nextCost });
+//                     }
+//                 }
+//             }
+//         }
+
+//         return -1; // Target not reachable
+//     }
