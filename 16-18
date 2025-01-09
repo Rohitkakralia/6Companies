@@ -1,0 +1,92 @@
+188. Best Time to Buy and Sell Stock IV
+class Solution {
+    Map<String, Integer> mem = new HashMap<>();
+    public int maxProfit(int k ,int[] prices) {
+        return recur(k, prices, 0, false, 0 );
+    }
+    private int recur(int k, int[] prices, int i, boolean hasStock, int count) {
+        String s = i + ":" + hasStock + ":" + count;
+        
+        if (mem.containsKey(s)) {
+            return mem.get(s);
+        }
+        
+        
+        int res = 0;
+        if(i >= prices.length || count>=k)
+        {
+            return res;
+        }      
+      
+        if (hasStock) {
+            int sell =  prices[i] + recur(k, prices, i+1, false, count+1) ;
+            int notSell = recur(k, prices, i+1, true, count);
+            res = Math.max(sell, notSell);
+        } else {
+            int buy = recur(k, prices, i+1, true, count) - prices[i];
+            
+            int notBuy = recur(k, prices, i+1, false, count);
+            res = Math.max(res, Math.max(buy, notBuy));
+        }
+        mem.put(s, res);
+        return res;
+    }
+}
+---------------------------------------------------------------------------------------------------------------------------------------
+845. Longest Mountain in Array
+class Solution {
+    public int longestMountain(int[] arr) {
+        int n = arr.length;
+        int ans = 0;
+        int base = 0;
+        while(base<n){
+            int end = base;
+
+            if(end+1 < n && arr[end] < arr[end+1]){
+                while(end+1 < n && arr[end] < arr[end+1]) end++;
+
+                if(end+1 < n && arr[end] > arr[end+1]){
+                    while(end+1 < n && arr[end] > arr[end+1]) end++;
+                    ans = Math.max(ans, end - base + 1);
+                }
+            }
+            base = Math.max(end, base+1);
+        }
+        return ans;
+    }
+}
+--------------------------------------------------------------------------------------------------------------------------
+2461. Maximum Sum of Distinct Subarrays With Length K
+class Solution {
+    public long maximumSubarraySum(int[] nums, int k) {
+        int n = nums.length;
+        Set<Integer> set = new HashSet<>();
+        int i = 0, j = 0;
+        long sum = 0;
+        long ans = 0;
+
+        while (j < n) {
+            // Expand the window
+            if (!set.contains(nums[j])) {
+                set.add(nums[j]);
+                sum += nums[j];
+                j++;
+
+                // Check if the window size is k
+                if (j - i == k) {
+                    ans = Math.max(ans, sum);
+                    // Shrink the window from the left
+                    set.remove(nums[i]);
+                    sum -= nums[i];
+                    i++;
+                }
+            } else {
+                // Shrink the window to remove duplicates
+                set.remove(nums[i]);
+                sum -= nums[i];
+                i++;
+            }
+        }
+        return ans;
+    }
+}
