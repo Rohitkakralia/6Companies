@@ -1,0 +1,41 @@
+Nuts and Bolts Problem
+class Solution {
+    void matchPairs(int n, char nuts[], char bolts[]) {
+        // code here
+        char order[] = {'!', '#', '$', '%', '&', '*', '?', '@', '^'};
+        int pos = 0;
+        
+        for(int i=0; i<9; i++){
+            for(int j=0; j<n; j++){
+                if(order[i] == bolts[j]){
+                    swap(bolts, j, pos);
+                    nuts[pos] = bolts[pos++]; 
+                }
+            }
+        }
+    }
+    void swap(char[] bolts, int i, int j){
+        char temp = bolts[i];
+        bolts[i] = bolts[j];
+        bolts[j] = temp;
+    }
+}
+---------------------------------------------------------------------------------------------------------------------------------
+297. Serialize and Deserialize Binary Tree
+PENDING
+
+---------------------------------------------------------------------------------------------------------------------------------
+168. Excel Sheet Column Title
+class Solution {
+    public String convertToTitle(int columnNumber) {
+        StringBuilder ans = new StringBuilder();
+        
+        while(columnNumber > 0){
+            columnNumber--;
+            char ch = (char)('A' + (columnNumber % 26));
+            ans.append(ch);
+            columnNumber /= 26;
+        }
+        return ans.reverse().toString();
+    }
+}
