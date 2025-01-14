@@ -1,0 +1,126 @@
+368. Largest Divisible Subset
+class Solution {
+    public List<Integer> largestDivisibleSubset(int[] nums) {
+        int n = nums.length;
+        int[] dp = new int[n];
+        Arrays.fill(dp, 1);
+        Arrays.sort(nums);
+        
+        int maxSize = 1, maxIndex = 0;
+        for (int i = 1; i < n; i++) {
+            for (int j = 0; j < i; j++) {
+                if (nums[i] % nums[j] == 0) {
+                    dp[i] = Math.max(dp[i], dp[j] + 1);
+                    if (dp[i] > maxSize) {
+                        maxSize = dp[i];
+                        maxIndex = i;
+                    }
+                }
+            }
+        }
+        
+        List<Integer> result = new ArrayList<>();
+        int num = nums[maxIndex];
+        for (int i = maxIndex; i >= 0; i--) {
+            if (num % nums[i] == 0 && dp[i] == maxSize) {
+                result.add(nums[i]);
+                num = nums[i];
+                maxSize--;
+            }
+        }
+        
+        return result;
+    }
+}
+--------------------------------------------------------------------------------------------------------------------------------------
+2099. Find Subsequence of Length K With the Largest Sum
+class Solution {
+    public int[] maxSubsequence(int[] nums, int k) {
+        int n = nums.length;
+        int[] ans = new int[k];
+        if(k == n) return nums;
+
+        PriorityQueue<int[]> pq = new PriorityQueue<>(
+    (a, b) -> Integer.compare(a[0], b[0])
+);
+
+        for(int i=0; i<n; i++){
+            pq.offer(new int[]{nums[i], i});
+            if(pq.size() > k){
+                pq.poll();
+            }
+        }
+        int j=0;
+        int[] idx = new int[k];
+        while(!pq.isEmpty()){
+            int[] temp = pq.poll();
+            idx[j] = temp[1];
+            j++;
+        }
+        Arrays.sort(idx);
+        for(int i=0; i<idx.length; i++){
+            ans[i] = nums[idx[i]];
+        }
+        return ans;
+    }
+}
+----------------------------------------------------------------------------------------------------------------------------------
+2385. Amount of Time for Binary Tree to Be Infected
+class Solution {
+    TreeNode startKey = null;
+    private void mapTheParent(TreeNode root, HashMap<TreeNode, TreeNode> parentMap, TreeNode parent, int start){
+        if(root == null) return;
+        if(root.val == start){
+            startKey = root;
+        }
+        parentMap.put(root, parent);
+        mapTheParent(root.left, parentMap, root, start);
+        mapTheParent(root.right, parentMap, root, start);
+    }
+    public int amountOfTime(TreeNode root, int start) {
+        if(root == null) return 0;
+        if(root.left == null && root.right == null) return 0;
+        HashMap<TreeNode, TreeNode> parentMap = new HashMap<>();
+        Set<TreeNode> set = new HashSet<>();
+        mapTheParent(root, parentMap, null, start);
+
+        Queue<TreeNode> q = new LinkedList<>();
+        q.add(startKey);
+        set.add(startKey);
+        int min = 0;
+
+        while(!q.isEmpty()){
+            int size = q.size();
+            boolean infectedInThisMin = false;
+
+            for(int j=0; j<size; j++){
+                TreeNode curr = q.poll();
+                for(int i=0; i<3; i++){
+                    if(i==0){
+                         if(curr.left != null && !set.contains(curr.left)){
+                            q.add(curr.left);
+                            set.add(curr.left);
+                            infectedInThisMin = true;
+                         }
+                    }else if( i==1){
+                        if(curr.right != null && !set.contains(curr.right)){
+                            set.add(curr.right);
+                            q.add(curr.right);
+                            infectedInThisMin = true;
+                         }
+                    }else if(i == 2){
+                        if(parentMap.get(curr) != null && !set.contains(parentMap.get(curr))){
+                            set.add(parentMap.get(curr));
+                            q.add(parentMap.get(curr));
+                            infectedInThisMin = true;
+                        }
+                    }
+                }
+            }
+            if(infectedInThisMin == true){
+                min++;
+            }
+        }
+        return min;
+    }
+}
