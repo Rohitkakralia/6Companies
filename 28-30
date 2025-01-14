@@ -1,0 +1,150 @@
+994. Rotting Oranges
+
+class Solution {
+    public int orangesRotting(int[][] grid) {
+        int n = grid.length;
+        int m = grid[0].length;
+        Queue<int[]> queue = new LinkedList<>();
+        int freshOranges = 0;
+
+        // Add all rotten oranges to the queue and count fresh oranges
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (grid[i][j] == 2) {
+                    queue.add(new int[]{i, j});
+                } else if (grid[i][j] == 1) {
+                    freshOranges++;
+                }
+            }
+        }
+
+        // If there are no fresh oranges, return 0
+        if (freshOranges == 0) return 0;
+
+        int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+        int minutes = 0;
+
+        // Perform BFS
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            boolean rottenInThisMinute = false;
+
+            for (int i = 0; i < size; i++) {
+                int[] cell = queue.poll();
+                int x = cell[0];
+                int y = cell[1];
+
+                // Check all 4 directions
+                for (int[] dir : directions) {
+                    int newX = x + dir[0];
+                    int newY = y + dir[1];
+
+                    // If the neighboring cell contains a fresh orange
+                    if (newX >= 0 && newX < n && newY >= 0 && newY < m && grid[newX][newY] == 1) {
+                        grid[newX][newY] = 2; // Make it rotten
+                        queue.add(new int[]{newX, newY});
+                        freshOranges--;
+                        rottenInThisMinute = true;
+                    }
+                }
+            }
+
+            // If any orange was rotten in this minute, increment minutes
+            if (rottenInThisMinute) {
+                minutes++;
+            }
+        }
+
+        // If there are still fresh oranges left, return -1
+        return freshOranges == 0 ? minutes : -1;
+    }
+}
+--------------------------------------------------------------------------------------------------------------------------------------
+2385. Amount of Time for Binary Tree to Be Infected
+class Solution {
+    TreeNode startKey = null;
+    private void mapTheParent(TreeNode root, HashMap<TreeNode, TreeNode> parentMap, TreeNode parent, int start){
+        if(root == null) return;
+        if(root.val == start){
+            startKey = root;
+        }
+        parentMap.put(root, parent);
+        mapTheParent(root.left, parentMap, root, start);
+        mapTheParent(root.right, parentMap, root, start);
+    }
+    public int amountOfTime(TreeNode root, int start) {
+        if(root == null) return 0;
+        if(root.left == null && root.right == null) return 0;
+        HashMap<TreeNode, TreeNode> parentMap = new HashMap<>();
+        Set<TreeNode> set = new HashSet<>();
+        mapTheParent(root, parentMap, null, start);
+
+        Queue<TreeNode> q = new LinkedList<>();
+        q.add(startKey);
+        set.add(startKey);
+        int min = 0;
+
+        while(!q.isEmpty()){
+            int size = q.size();
+            boolean infectedInThisMin = false;
+
+            for(int j=0; j<size; j++){
+                TreeNode curr = q.poll();
+                for(int i=0; i<3; i++){
+                    if(i==0){
+                         if(curr.left != null && !set.contains(curr.left)){
+                            q.add(curr.left);
+                            set.add(curr.left);
+                            infectedInThisMin = true;
+                         }
+                    }else if( i==1){
+                        if(curr.right != null && !set.contains(curr.right)){
+                            set.add(curr.right);
+                            q.add(curr.right);
+                            infectedInThisMin = true;
+                         }
+                    }else if(i == 2){
+                        if(parentMap.get(curr) != null && !set.contains(parentMap.get(curr))){
+                            set.add(parentMap.get(curr));
+                            q.add(parentMap.get(curr));
+                            infectedInThisMin = true;
+                        }
+                    }
+                }
+            }
+            if(infectedInThisMin == true){
+                min++;
+            }
+        }
+        return min;
+    }
+}
+--------------------------------------------------------------------------------------------------------------------------
+Delete N nodes after M nodes of a linked list
+class Solution {
+    static void linkdelete(Node head, int n, int m) {
+        // your code here
+        Node current = head;
+
+        while (current != null) {
+            // Skip m nodes
+            for (int i = 1; i < m && current != null; i++) {
+                current = current.next;
+            }
+
+            if (current == null) {
+                break;
+            }
+
+            // Start deleting n nodes
+            Node temp = current.next;
+            for (int i = 0; i < n && temp != null; i++) {
+                temp = temp.next;
+            }
+
+            // Connect current node to the remaining list
+            current.next = temp;
+            current = temp;
+        }
+    }
+}
